@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hln.mapper.GyProfilesDao">
+
+    <resultMap type="com.hln.pojo.GyProfiles" id="GyProfilesMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="same" column="same" jdbcType="INTEGER"/>
+        <result property="season" column="season" jdbcType="VARCHAR"/>
+        <result property="yield" column="yield" jdbcType="INTEGER"/>
+        <result property="delFlag" column="del_flag" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="GyP">
+        id,name,kind,same,season,yield,del_flag
+    </sql>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="GyProfilesMap">
+        select
+            id,name,kind,same,season,yield,del_flag
+        from
+            gy_profiles
+        where
+            id = #{id}
+        limit 1
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="GyProfilesMap">
+        select
+        id,name,kind,same,season,yield,del_flag
+        from gy_profiles
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="same != null">
+                and same = #{same}
+            </if>
+            <if test="season != null and season != ''">
+                and season = #{season}
+            </if>
+            <if test="yield != null">
+                and yield = #{yield}
+            </if>
+            <if test="delFlag != null">
+                and del_flag = #{delFlag}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from gy_profiles
+        where del_flag = 0
+    </select>
+
+    <select id="queryAllPage" resultType="com.hln.pojo.GyProfiles">
+        select
+            <include refid="GyP"/>
+        from
+            gy_profiles
+        limit #{start},#{size}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into gy_profiles(name,kind,same,season,yield,del_flag)
+        values (#{name},#{kind},#{same},#{season},#{yield},#{delFlag})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into gy_profiles(name,kind,same,season,yield,del_flag)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.name},#{entity.same},#{entity.season},#{entity.yield},#{entity.delFlag})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into gy_profiles(name,kind,same,season,yield,del_flag)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name},#{entity.same},#{entity.season},#{entity.yield},#{entity.delFlag})
+        </foreach>
+        on duplicate key update
+name = values(name)same = values(same)season = values(season)yield = values(yield)del_flag = values(del_flag)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update gy_profiles
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="same != null">
+                same = #{same},
+            </if>
+            <if test="season != null and season != ''">
+                season = #{season},
+            </if>
+            <if test="yield != null">
+                yield = #{yield},
+            </if>
+            <if test="delFlag != null">
+                del_flag = #{delFlag},
+            </if>
+        </set>
+        where id = #{id}
+        limit 1
+    </update>
+
+    <!--通过主键删除-->
+    <update id="deleteById">
+        update
+            gy_profiles
+        set
+            del_flag = 1;
+        where
+            id = #{id}
+        limit 1
+    </update>
+
+</mapper>
+
